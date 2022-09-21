@@ -26,7 +26,6 @@
 using ShareX.HelpersLib;
 using ShareX.Properties;
 using ShareX.ScreenCaptureLib;
-using ShareX.UploadersLib;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -39,8 +38,7 @@ namespace ShareX
     {
         public TaskSettings TaskSettings { get; private set; }
         public bool IsDefault { get; private set; }
-
-        private ToolStripDropDownItem tsmiImageFileUploaders, tsmiTextFileUploaders;
+        
         private bool loaded;
 
         public TaskSettingsForm(TaskSettings hotkeySetting, bool isDefault = false)
@@ -78,88 +76,6 @@ namespace ShareX
                 btnAfterCapture.Enabled = !TaskSettings.UseDefaultAfterCaptureJob;
                 AddMultiEnumItemsContextMenu<AfterCaptureTasks>(x => TaskSettings.AfterCaptureJob = TaskSettings.AfterCaptureJob.Swap(x), cmsAfterCapture);
                 SetMultiEnumCheckedContextMenu(TaskSettings.AfterCaptureJob, cmsAfterCapture);
-
-                cbOverrideAfterUploadSettings.Checked = !TaskSettings.UseDefaultAfterUploadJob;
-                btnAfterUpload.Enabled = !TaskSettings.UseDefaultAfterUploadJob;
-                AddMultiEnumItemsContextMenu<AfterUploadTasks>(x => TaskSettings.AfterUploadJob = TaskSettings.AfterUploadJob.Swap(x), cmsAfterUpload);
-                SetMultiEnumCheckedContextMenu(TaskSettings.AfterUploadJob, cmsAfterUpload);
-
-                cbOverrideDestinationSettings.Checked = !TaskSettings.UseDefaultDestinations;
-                btnDestinations.Enabled = !TaskSettings.UseDefaultDestinations;
-                AddEnumItems<ImageDestination>(x =>
-                {
-                    TaskSettings.ImageDestination = x;
-
-                    if (x == ImageDestination.FileUploader)
-                    {
-                        SetEnumChecked(TaskSettings.ImageFileDestination, tsmiImageFileUploaders);
-                    }
-                    else
-                    {
-                        MainForm.Uncheck(tsmiImageFileUploaders);
-                    }
-                }, tsmiImageUploaders);
-                tsmiImageFileUploaders = (ToolStripDropDownItem)tsmiImageUploaders.DropDownItems[tsmiImageUploaders.DropDownItems.Count - 1];
-                AddEnumItems<FileDestination>(x =>
-                {
-                    TaskSettings.ImageFileDestination = x;
-                    tsmiImageFileUploaders.PerformClick();
-                }, tsmiImageFileUploaders);
-                SetEnumChecked(TaskSettings.ImageDestination, tsmiImageUploaders);
-                MainForm.SetImageFileDestinationChecked(TaskSettings.ImageDestination, TaskSettings.ImageFileDestination, tsmiImageFileUploaders);
-                AddEnumItems<TextDestination>(x =>
-                {
-                    TaskSettings.TextDestination = x;
-
-                    if (x == TextDestination.FileUploader)
-                    {
-                        SetEnumChecked(TaskSettings.TextFileDestination, tsmiTextFileUploaders);
-                    }
-                    else
-                    {
-                        MainForm.Uncheck(tsmiTextFileUploaders);
-                    }
-                }, tsmiTextUploaders);
-                tsmiTextFileUploaders = (ToolStripDropDownItem)tsmiTextUploaders.DropDownItems[tsmiTextUploaders.DropDownItems.Count - 1];
-                AddEnumItems<FileDestination>(x =>
-                {
-                    TaskSettings.TextFileDestination = x;
-                    tsmiTextFileUploaders.PerformClick();
-                }, tsmiTextFileUploaders);
-                SetEnumChecked(TaskSettings.TextDestination, tsmiTextUploaders);
-                MainForm.SetTextFileDestinationChecked(TaskSettings.TextDestination, TaskSettings.TextFileDestination, tsmiTextFileUploaders);
-                AddEnumItems<FileDestination>(x => TaskSettings.FileDestination = x, tsmiFileUploaders);
-                SetEnumChecked(TaskSettings.FileDestination, tsmiFileUploaders);
-                AddEnumItems<UrlShortenerType>(x => TaskSettings.URLShortenerDestination = x, tsmiURLShorteners);
-                SetEnumChecked(TaskSettings.URLShortenerDestination, tsmiURLShorteners);
-                AddEnumItems<URLSharingServices>(x => TaskSettings.URLSharingServiceDestination = x, tsmiURLSharingServices);
-                SetEnumChecked(TaskSettings.URLSharingServiceDestination, tsmiURLSharingServices);
-                UpdateDestinationStates();
-
-                if (Program.UploadersConfig != null)
-                {
-                    cbOverrideFTPAccount.Enabled = cbFTPAccounts.Enabled = Program.UploadersConfig.FTPAccountList.Count > 0;
-
-                    if (Program.UploadersConfig.FTPAccountList.Count > 0)
-                    {
-                        cbOverrideFTPAccount.Checked = TaskSettings.OverrideFTP;
-                        cbFTPAccounts.Enabled = TaskSettings.OverrideFTP;
-                        cbFTPAccounts.Items.Clear();
-                        cbFTPAccounts.Items.AddRange(Program.UploadersConfig.FTPAccountList.ToArray());
-                        cbFTPAccounts.SelectedIndex = TaskSettings.FTPIndex.BetweenOrDefault(0, Program.UploadersConfig.FTPAccountList.Count - 1);
-                    }
-
-                    cbOverrideCustomUploader.Enabled = cbCustomUploaders.Enabled = Program.UploadersConfig.CustomUploadersList.Count > 0;
-
-                    if (Program.UploadersConfig.CustomUploadersList.Count > 0)
-                    {
-                        cbOverrideCustomUploader.Checked = TaskSettings.OverrideCustomUploader;
-                        cbCustomUploaders.Enabled = TaskSettings.OverrideCustomUploader;
-                        cbCustomUploaders.Items.Clear();
-                        cbCustomUploaders.Items.AddRange(Program.UploadersConfig.CustomUploadersList.ToArray());
-                        cbCustomUploaders.SelectedIndex = TaskSettings.CustomUploaderIndex.BetweenOrDefault(0, Program.UploadersConfig.CustomUploadersList.Count - 1);
-                    }
-                }
 
                 cbOverrideScreenshotsFolder.Checked = TaskSettings.OverrideScreenshotsFolder;
                 CodeMenu screenshotsFolderMenu = CodeMenu.Create<CodeMenuEntryFilename>(txtScreenshotsFolder, CodeMenuEntryFilename.t, CodeMenuEntryFilename.pn,
@@ -385,60 +301,6 @@ namespace ShareX
 
             #endregion Capture
 
-            #region Upload
-
-            #region File naming
-
-            txtNameFormatPattern.Text = TaskSettings.UploadSettings.NameFormatPattern;
-            txtNameFormatPatternActiveWindow.Text = TaskSettings.UploadSettings.NameFormatPatternActiveWindow;
-            CodeMenu.Create<CodeMenuEntryFilename>(txtNameFormatPattern, CodeMenuEntryFilename.n, CodeMenuEntryFilename.t, CodeMenuEntryFilename.pn);
-            CodeMenu.Create<CodeMenuEntryFilename>(txtNameFormatPatternActiveWindow, CodeMenuEntryFilename.n);
-            cbFileUploadUseNamePattern.Checked = TaskSettings.UploadSettings.FileUploadUseNamePattern;
-            nudAutoIncrementNumber.Value = Program.Settings.NameParserAutoIncrementNumber;
-            UpdateNameFormatPreviews();
-            cbNameFormatCustomTimeZone.Checked = cbNameFormatTimeZone.Enabled = TaskSettings.UploadSettings.UseCustomTimeZone;
-            cbNameFormatTimeZone.Items.AddRange(TimeZoneInfo.GetSystemTimeZones().ToArray());
-            for (int i = 0; i < cbNameFormatTimeZone.Items.Count; i++)
-            {
-                if (cbNameFormatTimeZone.Items[i].Equals(TaskSettings.UploadSettings.CustomTimeZone))
-                {
-                    cbNameFormatTimeZone.SelectedIndex = i;
-                    break;
-                }
-            }
-            cbFileUploadReplaceProblematicCharacters.Checked = TaskSettings.UploadSettings.FileUploadReplaceProblematicCharacters;
-            cbURLRegexReplace.Checked = TaskSettings.UploadSettings.URLRegexReplace;
-            lblURLRegexReplacePattern.Enabled = txtURLRegexReplacePattern.Enabled =
-                lblURLRegexReplaceReplacement.Enabled = txtURLRegexReplaceReplacement.Enabled = TaskSettings.UploadSettings.URLRegexReplace;
-            txtURLRegexReplacePattern.Text = TaskSettings.UploadSettings.URLRegexReplacePattern;
-            txtURLRegexReplaceReplacement.Text = TaskSettings.UploadSettings.URLRegexReplaceReplacement;
-
-            #endregion File naming
-
-            #region Clipboard upload
-
-            cbClipboardUploadURLContents.Checked = TaskSettings.UploadSettings.ClipboardUploadURLContents;
-            cbClipboardUploadShortenURL.Checked = TaskSettings.UploadSettings.ClipboardUploadShortenURL;
-            cbClipboardUploadShareURL.Checked = TaskSettings.UploadSettings.ClipboardUploadShareURL;
-            cbClipboardUploadAutoIndexFolder.Checked = TaskSettings.UploadSettings.ClipboardUploadAutoIndexFolder;
-
-            #endregion Clipboard upload
-
-            #region Uploader filters
-
-            cbUploaderFiltersDestination.Items.AddRange(UploaderFactory.AllGenericUploaderServices.OrderBy(x => x.ServiceName).ToArray());
-
-            if (TaskSettings.UploadSettings.UploaderFilters == null) TaskSettings.UploadSettings.UploaderFilters = new List<UploaderFilter>();
-
-            foreach (UploaderFilter filter in TaskSettings.UploadSettings.UploaderFilters)
-            {
-                AddUploaderFilterToList(filter);
-            }
-
-            #endregion Uploader filters
-
-            #endregion Upload
-
             #region Actions
 
             TaskHelpers.AddDefaultExternalPrograms(TaskSettings);
@@ -529,16 +391,6 @@ namespace ShareX
 
         private void UpdateDestinationStates()
         {
-            if (Program.UploadersConfig != null)
-            {
-                EnableDisableToolStripMenuItems<ImageDestination>(tsmiImageUploaders);
-                EnableDisableToolStripMenuItems<FileDestination>(tsmiImageFileUploaders);
-                EnableDisableToolStripMenuItems<TextDestination>(tsmiTextUploaders);
-                EnableDisableToolStripMenuItems<FileDestination>(tsmiTextFileUploaders);
-                EnableDisableToolStripMenuItems<FileDestination>(tsmiFileUploaders);
-                EnableDisableToolStripMenuItems<UrlShortenerType>(tsmiURLShorteners);
-                EnableDisableToolStripMenuItems<URLSharingServices>(tsmiURLSharingServices);
-            }
         }
 
         private void AddEnumItemsContextMenu<T>(Action<T> selectedEnum, params ToolStripDropDown[] parents) where T : Enum
@@ -704,7 +556,7 @@ namespace ShareX
             {
                 for (int i = 0; i < parent.DropDownItems.Count; i++)
                 {
-                    parent.DropDownItems[i].Enabled = UploadersConfigValidator.Validate<T>(i, Program.UploadersConfig);
+                    parent.DropDownItems[i].Enabled = false;
                 }
             }
         }
@@ -717,22 +569,6 @@ namespace ShareX
             btnAfterCapture.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_After_capture___0_,
                 string.Join(", ", TaskSettings.AfterCaptureJob.GetFlags().Select(x => x.GetLocalizedDescription())));
 
-            btnAfterUpload.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_After_upload___0_,
-                string.Join(", ", TaskSettings.AfterUploadJob.GetFlags().Select(x => x.GetLocalizedDescription())));
-
-            string imageUploader = TaskSettings.ImageDestination == ImageDestination.FileUploader ?
-                TaskSettings.ImageFileDestination.GetLocalizedDescription() : TaskSettings.ImageDestination.GetLocalizedDescription();
-            tsmiImageUploaders.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_Image_uploader___0_, imageUploader);
-
-            string textUploader = TaskSettings.TextDestination == TextDestination.FileUploader ?
-                TaskSettings.TextFileDestination.GetLocalizedDescription() : TaskSettings.TextDestination.GetLocalizedDescription();
-            tsmiTextUploaders.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_Text_uploader___0_, textUploader);
-
-            tsmiFileUploaders.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_File_uploader___0_, TaskSettings.FileDestination.GetLocalizedDescription());
-
-            tsmiURLShorteners.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_URL_shortener___0_, TaskSettings.URLShortenerDestination.GetLocalizedDescription());
-
-            tsmiURLSharingServices.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_URL_sharing_service___0_, TaskSettings.URLSharingServiceDestination.GetLocalizedDescription());
         }
 
         private void tbDescription_TextChanged(object sender, EventArgs e)
@@ -755,8 +591,6 @@ namespace ShareX
 
         private void cbUseDefaultDestinationSettings_CheckedChanged(object sender, EventArgs e)
         {
-            TaskSettings.UseDefaultDestinations = !cbOverrideDestinationSettings.Checked;
-            btnDestinations.Enabled = !TaskSettings.UseDefaultDestinations;
         }
 
         private void cbOverrideFTPAccount_CheckedChanged(object sender, EventArgs e)
@@ -1451,128 +1285,6 @@ namespace ShareX
             TaskSettings.UploadSettings.URLRegexReplaceReplacement = txtURLRegexReplaceReplacement.Text;
         }
 
-        private void cbClipboardUploadContents_CheckedChanged(object sender, EventArgs e)
-        {
-            TaskSettings.UploadSettings.ClipboardUploadURLContents = cbClipboardUploadURLContents.Checked;
-        }
-
-        private void cbClipboardUploadAutoDetectURL_CheckedChanged(object sender, EventArgs e)
-        {
-            TaskSettings.UploadSettings.ClipboardUploadShortenURL = cbClipboardUploadShortenURL.Checked;
-        }
-
-        private void cbClipboardUploadShareURL_CheckedChanged(object sender, EventArgs e)
-        {
-            TaskSettings.UploadSettings.ClipboardUploadShareURL = cbClipboardUploadShareURL.Checked;
-        }
-
-        private void cbClipboardUploadAutoIndexFolder_CheckedChanged(object sender, EventArgs e)
-        {
-            TaskSettings.UploadSettings.ClipboardUploadAutoIndexFolder = cbClipboardUploadAutoIndexFolder.Checked;
-        }
-
-        private UploaderFilter GetUploaderFilterFromFields()
-        {
-            if (cbUploaderFiltersDestination.SelectedItem is IGenericUploaderService service)
-            {
-                UploaderFilter filter = new UploaderFilter();
-                filter.Uploader = service.ServiceIdentifier;
-                filter.SetExtensions(txtUploaderFiltersExtensions.Text);
-                return filter;
-            }
-
-            return null;
-        }
-
-        private void AddUploaderFilterToList(UploaderFilter filter)
-        {
-            if (filter != null)
-            {
-                ListViewItem lvi = new ListViewItem(filter.Uploader);
-                lvi.SubItems.Add(filter.GetExtensions());
-                lvi.Tag = filter;
-
-                lvUploaderFiltersList.Items.Add(lvi);
-            }
-        }
-
-        private void UpdateUploaderFilterFields(UploaderFilter filter)
-        {
-            if (filter == null)
-            {
-                filter = new UploaderFilter();
-            }
-
-            for (int i = 0; i < cbUploaderFiltersDestination.Items.Count; i++)
-            {
-                if (cbUploaderFiltersDestination.Items[i] is IGenericUploaderService service &&
-                    service.ServiceIdentifier.Equals(filter.Uploader, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    cbUploaderFiltersDestination.SelectedIndex = i;
-                    break;
-                }
-            }
-
-            txtUploaderFiltersExtensions.Text = filter.GetExtensions();
-        }
-
-        private void btnUploaderFiltersAdd_Click(object sender, EventArgs e)
-        {
-            UploaderFilter filter = GetUploaderFilterFromFields();
-
-            if (filter != null)
-            {
-                TaskSettings.UploadSettings.UploaderFilters.Add(filter);
-
-                AddUploaderFilterToList(filter);
-
-                lvUploaderFiltersList.SelectedIndex = lvUploaderFiltersList.Items.Count - 1;
-            }
-        }
-
-        private void btnUploaderFiltersUpdate_Click(object sender, EventArgs e)
-        {
-            int index = lvUploaderFiltersList.SelectedIndex;
-
-            if (index > -1)
-            {
-                UploaderFilter filter = GetUploaderFilterFromFields();
-
-                if (filter != null)
-                {
-                    TaskSettings.UploadSettings.UploaderFilters[index] = filter;
-
-                    ListViewItem lvi = lvUploaderFiltersList.Items[index];
-                    lvi.Text = filter.Uploader;
-                    lvi.SubItems[1].Text = filter.GetExtensions();
-                    lvi.Tag = filter;
-                }
-            }
-        }
-
-        private void btnUploaderFiltersRemove_Click(object sender, EventArgs e)
-        {
-            int index = lvUploaderFiltersList.SelectedIndex;
-
-            if (index > -1)
-            {
-                TaskSettings.UploadSettings.UploaderFilters.RemoveAt(index);
-
-                lvUploaderFiltersList.Items.RemoveAt(index);
-            }
-        }
-
-        private void lvUploaderFiltersList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UploaderFilter filter = null;
-
-            if (lvUploaderFiltersList.SelectedItems.Count > 0)
-            {
-                filter = lvUploaderFiltersList.SelectedItems[0].Tag as UploaderFilter;
-            }
-
-            UpdateUploaderFilterFields(filter);
-        }
 
         #endregion Upload
 

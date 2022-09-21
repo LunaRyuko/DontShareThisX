@@ -56,15 +56,15 @@ namespace ShareX
 
         public void Update()
         {
-            if (Info.Result != null)
+            //if (Info.Result != null)
             {
-                IsURLExist = !string.IsNullOrEmpty(Info.Result.URL);
-                IsShortenedURLExist = !string.IsNullOrEmpty(Info.Result.ShortenedURL);
-                IsThumbnailURLExist = !string.IsNullOrEmpty(Info.Result.ThumbnailURL);
-                IsDeletionURLExist = !string.IsNullOrEmpty(Info.Result.DeletionURL);
-                IsFileURL = IsURLExist && URLHelpers.IsFileURL(Info.Result.URL);
-                IsImageURL = IsFileURL && FileHelpers.IsImageFile(Info.Result.URL);
-                IsTextURL = IsFileURL && FileHelpers.IsTextFile(Info.Result.URL);
+                IsURLExist = false;
+                IsShortenedURLExist = false;
+                IsThumbnailURLExist = false;
+                IsDeletionURLExist = false;
+                IsFileURL = false;
+                IsImageURL = false;
+                IsTextURL = false;
             }
 
             IsFilePathValid = !string.IsNullOrEmpty(Info.FilePath) && Path.HasExtension(Info.FilePath);

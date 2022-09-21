@@ -48,21 +48,6 @@ namespace ShareX
             {
                 pattern = Parse(pattern);
 
-                if (info.Result != null)
-                {
-                    string result = info.Result.ToString();
-
-                    if (string.IsNullOrEmpty(result) && !string.IsNullOrEmpty(info.FilePath))
-                    {
-                        result = info.FilePath;
-                    }
-
-                    pattern = pattern.Replace("$result", result ?? "");
-                    pattern = pattern.Replace("$url", info.Result.URL ?? "");
-                    pattern = pattern.Replace("$shorturl", info.Result.ShortenedURL ?? "");
-                    pattern = pattern.Replace("$thumbnailurl", info.Result.ThumbnailURL ?? "");
-                    pattern = pattern.Replace("$deletionurl", info.Result.DeletionURL ?? "");
-                }
 
                 pattern = pattern.Replace("$filenamenoext", !string.IsNullOrEmpty(info.FileName) ? Path.GetFileNameWithoutExtension(info.FileName) : "");
                 pattern = pattern.Replace("$filename", info.FileName ?? "");

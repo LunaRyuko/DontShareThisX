@@ -37,7 +37,6 @@
             this.lvAfterCaptureTasks = new ShareX.HelpersLib.MyListView();
             this.chAfterCapture = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.tpBeforeUpload = new System.Windows.Forms.TabPage();
-            this.ucBeforeUpload = new ShareX.BeforeUploadControl();
             this.tpAfterUpload = new System.Windows.Forms.TabPage();
             this.lvAfterUploadTasks = new ShareX.HelpersLib.MyListView();
             this.chAfterUpload = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -108,14 +107,8 @@
             // tpBeforeUpload
             // 
             this.tpBeforeUpload.BackColor = System.Drawing.SystemColors.Window;
-            this.tpBeforeUpload.Controls.Add(this.ucBeforeUpload);
             resources.ApplyResources(this.tpBeforeUpload, "tpBeforeUpload");
             this.tpBeforeUpload.Name = "tpBeforeUpload";
-            // 
-            // ucBeforeUpload
-            // 
-            resources.ApplyResources(this.ucBeforeUpload, "ucBeforeUpload");
-            this.ucBeforeUpload.Name = "ucBeforeUpload";
             // 
             // tpAfterUpload
             // 
@@ -202,7 +195,6 @@
         private System.Windows.Forms.TabControl tcTasks;
         private System.Windows.Forms.TabPage tpAfterCapture;
         private System.Windows.Forms.TabPage tpBeforeUpload;
-        private BeforeUploadControl ucBeforeUpload;
         private System.Windows.Forms.Label lblFileName;
         private System.Windows.Forms.TextBox txtFileName;
         private System.Windows.Forms.TabPage tpAfterUpload;

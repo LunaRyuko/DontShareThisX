@@ -26,7 +26,7 @@
 using ShareX.HelpersLib;
 using ShareX.HistoryLib;
 using ShareX.Properties;
-using ShareX.UploadersLib;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -61,7 +61,6 @@ namespace ShareX
                     task.UploadProgressChanged += Task_UploadProgressChanged;
                     task.UploadCompleted += Task_UploadCompleted;
                     task.TaskCompleted += Task_TaskCompleted;
-                    task.UploadersConfigWindowRequested += Task_UploadersConfigWindowRequested;
                 }
 
                 TaskListView.AddItem(task);
@@ -103,16 +102,7 @@ namespace ShareX
 
             if (inQueueTasks.Length > 0)
             {
-                int len;
-
-                if (Program.Settings.UploadLimit == 0)
-                {
-                    len = inQueueTasks.Length;
-                }
-                else
-                {
-                    len = (Program.Settings.UploadLimit - workingTasksCount).Clamp(0, inQueueTasks.Length);
-                }
+                int len = inQueueTasks.Length;
 
                 for (int i = 0; i < len; i++)
                 {
@@ -197,28 +187,10 @@ namespace ShareX
 
                 ListViewItem lvi = TaskListView.FindItem(task);
 
-                if (lvi != null)
-                {
-                    lvi.SubItems[1].Text = string.Format("{0:0.0}%", info.Progress.Percentage);
 
-                    if (info.Progress.CustomProgressText != null)
-                    {
-                        lvi.SubItems[2].Text = info.Progress.CustomProgressText;
-                        lvi.SubItems[3].Text = "";
-                    }
-                    else
-                    {
-                        lvi.SubItems[2].Text = string.Format("{0} / {1}", info.Progress.Position.ToSizeString(Program.Settings.BinaryUnits), info.Progress.Length.ToSizeString(Program.Settings.BinaryUnits));
-
-                        if (info.Progress.Speed > 0)
-                        {
-                            lvi.SubItems[3].Text = ((long)info.Progress.Speed).ToSizeString(Program.Settings.BinaryUnits) + "/s";
-                        }
-                    }
-
-                    lvi.SubItems[4].Text = Helpers.ProperTimeSpan(info.Progress.Elapsed);
-                    lvi.SubItems[5].Text = Helpers.ProperTimeSpan(info.Progress.Remaining);
-                }
+                lvi.SubItems[1].Text = "100%";
+                lvi.SubItems[2].Text = "1/1";
+                lvi.SubItems[3].Text = "";
 
                 TaskThumbnailPanel panel = TaskThumbnailView.FindPanel(task);
 
@@ -234,23 +206,6 @@ namespace ShareX
         private static void Task_UploadCompleted(WorkerTask task)
         {
             TaskInfo info = task.Info;
-
-            if (info != null && info.Result != null && !info.Result.IsError)
-            {
-                string url = info.Result.ToString();
-
-                if (!string.IsNullOrEmpty(url))
-                {
-                    string text = $"Upload completed. URL: {url}";
-
-                    if (info.UploadDuration != null)
-                    {
-                        text += $", Duration: {info.UploadDuration.ElapsedMilliseconds} ms";
-                    }
-
-                    DebugHelper.WriteLine(text);
-                }
-            }
 
             TaskThumbnailPanel panel = TaskThumbnailView.FindPanel(task);
 
@@ -275,7 +230,7 @@ namespace ShareX
 
                     TaskInfo info = task.Info;
 
-                    if (info != null && info.Result != null)
+                    if (true)
                     {
                         TaskThumbnailPanel panel = TaskThumbnailView.FindPanel(task);
 
@@ -298,38 +253,6 @@ namespace ShareX
                                 lvi.ImageIndex = 2;
                             }
                         }
-                        else if (task.Status == TaskStatus.Failed)
-                        {
-                            string errors = string.Join("\r\n\r\n", info.Result.Errors.ToArray());
-
-                            DebugHelper.WriteLine($"Task failed. File name: {info.FileName}, Errors:\r\n{errors}");
-
-                            if (lvi != null)
-                            {
-                                lvi.SubItems[1].Text = info.Status;
-                                lvi.SubItems[6].Text = "";
-                                lvi.ImageIndex = 1;
-                            }
-
-                            if (!info.TaskSettings.GeneralSettings.DisableNotifications)
-                            {
-                                if (info.TaskSettings.GeneralSettings.PlaySoundAfterUpload)
-                                {
-                                    TaskHelpers.PlayErrorSound(info.TaskSettings);
-                                }
-
-                                if (info.Result.Errors.Count > 0)
-                                {
-                                    string errorMessage = info.Result.Errors[0];
-
-                                    if (info.TaskSettings.GeneralSettings.ShowToastNotificationAfterTaskCompleted && !string.IsNullOrEmpty(errorMessage) &&
-                                        (!info.TaskSettings.GeneralSettings.DisableNotificationsOnFullscreen || !CaptureHelpers.IsActiveWindowFullscreen()))
-                                    {
-                                        TaskHelpers.ShowNotificationTip(errorMessage, "ShareX - " + Resources.TaskManager_task_UploadCompleted_Error, 5000);
-                                    }
-                                }
-                            }
-                        }
                         else
                         {
                             DebugHelper.WriteLine($"Task completed. File name: {info.FileName}, Duration: {(long)info.TaskDuration.TotalMilliseconds} ms");
@@ -350,8 +273,7 @@ namespace ShareX
 
                             if (!task.StopRequested && !string.IsNullOrEmpty(result))
                             {
-                                if (Program.Settings.HistorySaveTasks && (!Program.Settings.HistoryCheckURL ||
-                                   (!string.IsNullOrEmpty(info.Result.URL) || !string.IsNullOrEmpty(info.Result.ShortenedURL))))
+                                if (Program.Settings.HistorySaveTasks)
                                 {
                                     HistoryItem historyItem = info.GetHistoryItem();
                                     AppendHistoryItemAsync(historyItem);
@@ -393,16 +315,11 @@ namespace ShareX
                                         };
 
                                         NotificationForm.Show(toastConfig);
-
-                                        if (info.TaskSettings.AfterUploadJob.HasFlag(AfterUploadTasks.ShowAfterUploadWindow) && info.IsUploadJob)
-                                        {
-                                            AfterUploadForm dlg = new AfterUploadForm(info);
-                                            NativeMethods.ShowWindow(dlg.Handle, (int)WindowShowStyle.ShowNoActivate);
-                                        }
                                     }
                                 }
                             }
                         }
+
 
                         if (lvi != null)
                         {
@@ -435,15 +352,10 @@ namespace ShareX
             }
         }
 
-        private static void Task_UploadersConfigWindowRequested(IUploaderService uploaderService)
-        {
-            TaskHelpers.OpenUploadersConfigWindow(uploaderService);
-        }
-
         public static void UpdateProgressUI()
         {
             bool isTasksWorking = false;
-            double averageProgress = 0;
+            double averageProgress = 1;
 
             IEnumerable<WorkerTask> workingTasks = Tasks.Where(x => x != null && x.Status == TaskStatus.Working && x.Info != null);
 
@@ -451,11 +363,8 @@ namespace ShareX
             {
                 isTasksWorking = true;
 
-                workingTasks = workingTasks.Where(x => x.Info.Progress != null);
-
                 if (workingTasks.Count() > 0)
                 {
-                    averageProgress = workingTasks.Average(x => x.Info.Progress.Percentage);
                 }
             }
 

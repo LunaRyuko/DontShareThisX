@@ -27,7 +27,6 @@ using ShareX.HelpersLib;
 using ShareX.ImageEffectsLib;
 using ShareX.Properties;
 using ShareX.ScreenCaptureLib;
-using ShareX.UploadersLib;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -46,7 +45,6 @@ namespace ShareX
         private bool forceClose, trayMenuSaveSettings = true;
         private int trayClickCount = 0;
         private UploadInfoManager uim;
-        private ToolStripDropDownItem tsmiImageFileUploaders, tsmiTrayImageFileUploaders, tsmiTextFileUploaders, tsmiTrayTextFileUploaders;
         private ImageFilesCache actionsMenuIconCache = new ImageFilesCache();
 
         public MainForm()
@@ -99,67 +97,7 @@ namespace ShareX
                 tsddbAfterCaptureTasks, tsmiTrayAfterCaptureTasks);
             tsddbAfterCaptureTasks.DropDownOpening += TsddbAfterCaptureTasks_DropDownOpening;
             tsmiTrayAfterCaptureTasks.DropDownOpening += TsmiTrayAfterCaptureTasks_DropDownOpening;
-            AddMultiEnumItems<AfterUploadTasks>(x => Program.DefaultTaskSettings.AfterUploadJob = Program.DefaultTaskSettings.AfterUploadJob.Swap(x),
-                tsddbAfterUploadTasks, tsmiTrayAfterUploadTasks);
-            AddEnumItems<ImageDestination>(x =>
-            {
-                Program.DefaultTaskSettings.ImageDestination = x;
-
-                if (x == ImageDestination.FileUploader)
-                {
-                    SetEnumChecked(Program.DefaultTaskSettings.ImageFileDestination, tsmiImageFileUploaders, tsmiTrayImageFileUploaders);
-                }
-                else
-                {
-                    Uncheck(tsmiImageFileUploaders, tsmiTrayImageFileUploaders);
-                }
-            }, tsmiImageUploaders, tsmiTrayImageUploaders);
-            tsmiImageFileUploaders = (ToolStripDropDownItem)tsmiImageUploaders.DropDownItems[tsmiImageUploaders.DropDownItems.Count - 1];
-            tsmiTrayImageFileUploaders = (ToolStripDropDownItem)tsmiTrayImageUploaders.DropDownItems[tsmiTrayImageUploaders.DropDownItems.Count - 1];
-            AddEnumItems<FileDestination>(x =>
-            {
-                Program.DefaultTaskSettings.ImageFileDestination = x;
-                tsmiImageFileUploaders.PerformClick();
-                tsmiTrayImageFileUploaders.PerformClick();
-            }, tsmiImageFileUploaders, tsmiTrayImageFileUploaders);
-            AddEnumItems<TextDestination>(x =>
-            {
-                Program.DefaultTaskSettings.TextDestination = x;
-
-                if (x == TextDestination.FileUploader)
-                {
-                    SetEnumChecked(Program.DefaultTaskSettings.TextFileDestination, tsmiTextFileUploaders, tsmiTrayTextFileUploaders);
-                }
-                else
-                {
-                    Uncheck(tsmiTextFileUploaders, tsmiTrayTextFileUploaders);
-                }
-            }, tsmiTextUploaders, tsmiTrayTextUploaders);
-            tsmiTextFileUploaders = (ToolStripDropDownItem)tsmiTextUploaders.DropDownItems[tsmiTextUploaders.DropDownItems.Count - 1];
-            tsmiTrayTextFileUploaders = (ToolStripDropDownItem)tsmiTrayTextUploaders.DropDownItems[tsmiTrayTextUploaders.DropDownItems.Count - 1];
-            AddEnumItems<FileDestination>(x =>
-            {
-                Program.DefaultTaskSettings.TextFileDestination = x;
-                tsmiTextFileUploaders.PerformClick();
-                tsmiTrayTextFileUploaders.PerformClick();
-            }, tsmiTextFileUploaders, tsmiTrayTextFileUploaders);
-            AddEnumItems<FileDestination>(x => Program.DefaultTaskSettings.FileDestination = x, tsmiFileUploaders, tsmiTrayFileUploaders);
-            AddEnumItems<UrlShortenerType>(x => Program.DefaultTaskSettings.URLShortenerDestination = x, tsmiURLShorteners, tsmiTrayURLShorteners);
-            AddEnumItems<URLSharingServices>(x => Program.DefaultTaskSettings.URLSharingServiceDestination = x, tsmiURLSharingServices, tsmiTrayURLSharingServices);
-
-            foreach (UrlShortenerType urlShortener in Helpers.GetEnums<UrlShortenerType>())
-            {
-                ToolStripMenuItem tsmi = new ToolStripMenuItem(urlShortener.GetLocalizedDescription());
-                tsmi.Click += (sender, e) => uim.ShortenURL(urlShortener);
-                tsmiShortenSelectedURL.DropDownItems.Add(tsmi);
-            }
-
-            foreach (URLSharingServices urlSharingService in Helpers.GetEnums<URLSharingServices>())
-            {
-                ToolStripMenuItem tsmi = new ToolStripMenuItem(urlSharingService.GetLocalizedDescription());
-                tsmi.Click += (sender, e) => uim.ShareURL(urlSharingService);
-                tsmiShareSelectedURL.DropDownItems.Add(tsmi);
-            }
+            
 
             lvUploads.SupportCustomTheme();
 
@@ -181,16 +119,13 @@ namespace ShareX
 
             foreach (ToolStripDropDownItem dropDownItem in new ToolStripDropDownItem[]
             {
-                tsddbAfterCaptureTasks, tsddbAfterUploadTasks, tsmiImageUploaders, tsmiImageFileUploaders, tsmiTextUploaders, tsmiTextFileUploaders, tsmiFileUploaders,
-                tsmiURLShorteners, tsmiURLSharingServices, tsmiTrayAfterCaptureTasks, tsmiTrayAfterUploadTasks, tsmiTrayImageUploaders, tsmiTrayImageFileUploaders,
-                tsmiTrayTextUploaders, tsmiTrayTextFileUploaders, tsmiTrayFileUploaders, tsmiTrayURLShorteners, tsmiTrayURLSharingServices, tsmiScreenshotDelay,
+                tsddbAfterCaptureTasks, tsmiTrayAfterCaptureTasks, tsmiScreenshotDelay,
                 tsmiTrayScreenshotDelay
             })
             {
                 dropDownItem.DisableMenuCloseOnClick();
             }
 
-            ExportImportControl.UploadRequested += json => UploadManager.UploadText(json);
 
 #if MicrosoftStore
             tsmiDNSChanger.Visible = false;
@@ -257,7 +192,6 @@ namespace ShareX
             TaskbarManager.Enabled = Program.Settings.TaskbarProgressEnabled;
 
             UpdateCheckStates();
-            UpdateUploaderMenuNames();
             UpdateDestinationStates();
             UpdateToggleHotkeyButton();
             AfterTaskSettingsJobs();
@@ -442,16 +376,6 @@ namespace ShareX
 
         private void UpdateDestinationStates()
         {
-            if (Program.UploadersConfig != null)
-            {
-                EnableDisableToolStripMenuItems<ImageDestination>(tsmiImageUploaders, tsmiTrayImageUploaders);
-                EnableDisableToolStripMenuItems<FileDestination>(tsmiImageFileUploaders, tsmiTrayImageFileUploaders);
-                EnableDisableToolStripMenuItems<TextDestination>(tsmiTextUploaders, tsmiTrayTextUploaders);
-                EnableDisableToolStripMenuItems<FileDestination>(tsmiTextFileUploaders, tsmiTrayTextFileUploaders);
-                EnableDisableToolStripMenuItems<FileDestination>(tsmiFileUploaders, tsmiTrayFileUploaders);
-                EnableDisableToolStripMenuItems<UrlShortenerType>(tsmiURLShorteners, tsmiTrayURLShorteners);
-                EnableDisableToolStripMenuItems<URLSharingServices>(tsmiURLSharingServices, tsmiTrayURLSharingServices);
-            }
         }
 
         private void AddEnumItems<T>(Action<T> selectedEnum, params ToolStripDropDownItem[] parents) where T : Enum
@@ -479,8 +403,6 @@ namespace ShareX
                         }
 
                         selectedEnum(currentEnum);
-
-                        UpdateUploaderMenuNames();
                     };
 
                     parent.DropDownItems.Add(tsmi);
@@ -537,8 +459,6 @@ namespace ShareX
                         }
 
                         selectedEnum(currentEnum);
-
-                        UpdateUploaderMenuNames();
                     };
 
                     parent.DropDownItems.Add(tsmi);
@@ -605,8 +525,7 @@ namespace ShareX
             {
                 for (int i = 0; i < parent.DropDownItems.Count; i++)
                 {
-                    parent.DropDownItems[i].ForeColor = UploadersConfigValidator.Validate<T>(i, Program.UploadersConfig) ?
-                        SystemColors.ControlText : Color.FromArgb(200, 0, 0);
+                    parent.DropDownItems[i].ForeColor = Color.FromArgb(200, 0, 0);
                 }
             }
         }
@@ -673,7 +592,7 @@ namespace ShareX
                 }
                 else
                 {
-                    tsmiShowErrors.Visible = uim.SelectedItem.Info.Result.IsError;
+                    tsmiShowErrors.Visible = false;
 
                     // Copy
                     tsmiCopy.Visible = true;
@@ -736,7 +655,7 @@ namespace ShareX
                     tsmiShowQRCode.Visible = uim.SelectedItem.IsURLExist;
                     tsmiOCRImage.Visible = uim.SelectedItem.IsImageFile;
                     tsmiCombineImages.Visible = uim.SelectedItems.Count(x => x.IsImageFile) > 1;
-                    tsmiShowResponse.Visible = !string.IsNullOrEmpty(uim.SelectedItem.Info.Result.Response);
+                    tsmiShowResponse.Visible = false;
                 }
 
                 if (Program.Settings.TaskViewMode == TaskViewMode.ListView)
@@ -746,10 +665,6 @@ namespace ShareX
                         if (uim.SelectedItem.IsImageFile)
                         {
                             pbPreview.LoadImageFromFileAsync(uim.SelectedItem.Info.FilePath);
-                        }
-                        else if (uim.SelectedItem.IsImageURL)
-                        {
-                            pbPreview.LoadImageFromURLAsync(uim.SelectedItem.Info.Result.URL);
                         }
                     }
                 }
@@ -847,7 +762,6 @@ namespace ShareX
                 tsmiOCR.Image = Resources.edit_drop_cap_white;
                 tsmiTrayOCR.Image = Resources.edit_drop_cap_white;
                 tsmiOCRImage.Image = Resources.edit_drop_cap_white;
-                tsmiShortenURL.Image = Resources.edit_scale_white;
                 tsmiTrayShortenURL.Image = Resources.edit_scale_white;
                 tsmiURLShorteners.Image = Resources.edit_scale_white;
                 tsmiTrayURLShorteners.Image = Resources.edit_scale_white;
@@ -862,7 +776,6 @@ namespace ShareX
                 tsmiOCR.Image = Resources.edit_drop_cap;
                 tsmiTrayOCR.Image = Resources.edit_drop_cap;
                 tsmiOCRImage.Image = Resources.edit_drop_cap;
-                tsmiShortenURL.Image = Resources.edit_scale;
                 tsmiTrayShortenURL.Image = Resources.edit_scale;
                 tsmiURLShorteners.Image = Resources.edit_scale;
                 tsmiTrayURLShorteners.Image = Resources.edit_scale;
@@ -988,58 +901,6 @@ namespace ShareX
         public void UpdateCheckStates()
         {
             SetMultiEnumChecked(Program.DefaultTaskSettings.AfterCaptureJob, tsddbAfterCaptureTasks, tsmiTrayAfterCaptureTasks);
-            SetMultiEnumChecked(Program.DefaultTaskSettings.AfterUploadJob, tsddbAfterUploadTasks, tsmiTrayAfterUploadTasks);
-            SetEnumChecked(Program.DefaultTaskSettings.ImageDestination, tsmiImageUploaders, tsmiTrayImageUploaders);
-            SetImageFileDestinationChecked(Program.DefaultTaskSettings.ImageDestination, Program.DefaultTaskSettings.ImageFileDestination, tsmiImageFileUploaders, tsmiTrayImageFileUploaders);
-            SetEnumChecked(Program.DefaultTaskSettings.TextDestination, tsmiTextUploaders, tsmiTrayTextUploaders);
-            SetTextFileDestinationChecked(Program.DefaultTaskSettings.TextDestination, Program.DefaultTaskSettings.TextFileDestination, tsmiTextFileUploaders, tsmiTrayTextFileUploaders);
-            SetEnumChecked(Program.DefaultTaskSettings.FileDestination, tsmiFileUploaders, tsmiTrayFileUploaders);
-            SetEnumChecked(Program.DefaultTaskSettings.URLShortenerDestination, tsmiURLShorteners, tsmiTrayURLShorteners);
-            SetEnumChecked(Program.DefaultTaskSettings.URLSharingServiceDestination, tsmiURLSharingServices, tsmiTrayURLSharingServices);
-        }
-
-        public static void SetTextFileDestinationChecked(TextDestination textDestination, FileDestination textFileDestination, params ToolStripDropDownItem[] lists)
-        {
-            if (textDestination == TextDestination.FileUploader)
-            {
-                SetEnumChecked(textFileDestination, lists);
-            }
-            else
-            {
-                Uncheck(lists);
-            }
-        }
-
-        public static void SetImageFileDestinationChecked(ImageDestination imageDestination, FileDestination imageFileDestination, params ToolStripDropDownItem[] lists)
-        {
-            if (imageDestination == ImageDestination.FileUploader)
-            {
-                SetEnumChecked(imageFileDestination, lists);
-            }
-            else
-            {
-                Uncheck(lists);
-            }
-        }
-
-        public void UpdateUploaderMenuNames()
-        {
-            string imageUploader = Program.DefaultTaskSettings.ImageDestination == ImageDestination.FileUploader ?
-                Program.DefaultTaskSettings.ImageFileDestination.GetLocalizedDescription() : Program.DefaultTaskSettings.ImageDestination.GetLocalizedDescription();
-            tsmiImageUploaders.Text = tsmiTrayImageUploaders.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_Image_uploader___0_, imageUploader);
-
-            string textUploader = Program.DefaultTaskSettings.TextDestination == TextDestination.FileUploader ?
-                Program.DefaultTaskSettings.TextFileDestination.GetLocalizedDescription() : Program.DefaultTaskSettings.TextDestination.GetLocalizedDescription();
-            tsmiTextUploaders.Text = tsmiTrayTextUploaders.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_Text_uploader___0_, textUploader);
-
-            tsmiFileUploaders.Text = tsmiTrayFileUploaders.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_File_uploader___0_,
-                Program.DefaultTaskSettings.FileDestination.GetLocalizedDescription());
-
-            tsmiURLShorteners.Text = tsmiTrayURLShorteners.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_URL_shortener___0_,
-                Program.DefaultTaskSettings.URLShortenerDestination.GetLocalizedDescription());
-
-            tsmiURLSharingServices.Text = tsmiTrayURLSharingServices.Text = string.Format(Resources.TaskSettingsForm_UpdateUploaderMenuNames_URL_sharing_service___0_,
-                Program.DefaultTaskSettings.URLSharingServiceDestination.GetLocalizedDescription());
         }
 
         private WorkerTask[] GetSelectedTasks()
@@ -1118,24 +979,6 @@ namespace ShareX
         {
             if (Program.PuushMode && Program.Settings.IsFirstTimeRun)
             {
-                using (PuushLoginForm puushLoginForm = new PuushLoginForm())
-                {
-                    if (puushLoginForm.ShowDialog() == DialogResult.OK)
-                    {
-                        Program.DefaultTaskSettings.ImageDestination = ImageDestination.FileUploader;
-                        Program.DefaultTaskSettings.ImageFileDestination = FileDestination.Puush;
-                        Program.DefaultTaskSettings.TextDestination = TextDestination.FileUploader;
-                        Program.DefaultTaskSettings.TextFileDestination = FileDestination.Puush;
-                        Program.DefaultTaskSettings.FileDestination = FileDestination.Puush;
-
-                        SettingManager.WaitUploadersConfig();
-
-                        if (Program.UploadersConfig != null)
-                        {
-                            Program.UploadersConfig.PuushAPIKey = puushLoginForm.APIKey;
-                        }
-                    }
-                }
             }
         }
 
@@ -1334,7 +1177,6 @@ namespace ShareX
 
         private void MainForm_DragDrop(object sender, DragEventArgs e)
         {
-            UploadManager.DragDropUpload(e.Data);
         }
 
         private void TtMain_Draw(object sender, DrawToolTipEventArgs e)
@@ -1417,15 +1259,6 @@ namespace ShareX
                 case Keys.Control | Keys.X:
                     uim.TryCopy();
                     RemoveSelectedItems();
-                    break;
-                case Keys.Control | Keys.V:
-                    UploadManager.ClipboardUploadMainWindow();
-                    break;
-                case Keys.Control | Keys.U:
-                    uim.Upload();
-                    break;
-                case Keys.Control | Keys.D:
-                    uim.Download();
                     break;
                 case Keys.Control | Keys.E:
                     uim.EditImage();
@@ -1652,27 +1485,22 @@ namespace ShareX
 
         private void tsbFileUpload_Click(object sender, EventArgs e)
         {
-            UploadManager.UploadFile();
         }
 
         private void tsmiUploadFolder_Click(object sender, EventArgs e)
         {
-            UploadManager.UploadFolder();
         }
 
         private void tsbClipboardUpload_Click(object sender, EventArgs e)
         {
-            UploadManager.ClipboardUploadMainWindow();
         }
 
         private void tsmiUploadText_Click(object sender, EventArgs e)
         {
-            UploadManager.ShowTextUploadDialog();
         }
 
         private void tsmiUploadURL_Click(object sender, EventArgs e)
         {
-            UploadManager.UploadURL();
         }
 
         private void tsbDragDropUpload_Click(object sender, EventArgs e)
@@ -1682,12 +1510,10 @@ namespace ShareX
 
         private void tsmiShortenURL_Click(object sender, EventArgs e)
         {
-            UploadManager.ShowShortenURLDialog();
         }
 
         private void tsmiTweetMessage_Click(object sender, EventArgs e)
         {
-            TaskHelpers.TweetMessage();
         }
 
         private void tsmiColorPicker_Click(object sender, EventArgs e)
@@ -1821,12 +1647,10 @@ namespace ShareX
 
         private void tsmiDestinationSettings_Click(object sender, EventArgs e)
         {
-            TaskHelpers.OpenUploadersConfigWindow();
         }
 
         private void tsmiCustomUploaderSettings_Click(object sender, EventArgs e)
         {
-            TaskHelpers.OpenCustomUploaderSettingsWindow();
         }
 
         private void tsbApplicationSettings_Click(object sender, EventArgs e)
@@ -1897,27 +1721,22 @@ namespace ShareX
 
         private void tsmiTestImageUpload_Click(object sender, EventArgs e)
         {
-            UploadManager.UploadImage(ShareXResources.Logo);
         }
 
         private void tsmiTestTextUpload_Click(object sender, EventArgs e)
         {
-            UploadManager.UploadText(Resources.MainForm_tsmiTestTextUpload_Click_Text_upload_test);
         }
 
         private void tsmiTestFileUpload_Click(object sender, EventArgs e)
         {
-            UploadManager.UploadImage(ShareXResources.Logo, ImageDestination.FileUploader, Program.DefaultTaskSettings.FileDestination);
         }
 
         private void tsmiTestURLShortener_Click(object sender, EventArgs e)
         {
-            UploadManager.ShortenURL(Links.Website);
         }
 
         private void tsmiTestURLSharing_Click(object sender, EventArgs e)
         {
-            UploadManager.ShareURL(Links.Website);
         }
 
         private void tsbDonate_Click(object sender, EventArgs e)
@@ -2289,12 +2108,10 @@ namespace ShareX
 
         private void tsmiUploadSelectedFile_Click(object sender, EventArgs e)
         {
-            uim.Upload();
         }
 
         private void tsmiDownloadSelectedURL_Click(object sender, EventArgs e)
         {
-            uim.Download();
         }
 
         private void tsmiDeleteSelectedItem_Click(object sender, EventArgs e)
@@ -2324,12 +2141,10 @@ namespace ShareX
 
         private void tsmiGoogleImageSearch_Click(object sender, EventArgs e)
         {
-            uim.SearchImageUsingGoogle();
         }
 
         private void tsmiBingVisualSearch_Click(object sender, EventArgs e)
         {
-            uim.SearchImageUsingBing();
         }
 
         private void tsmiShowQRCode_Click(object sender, EventArgs e)
@@ -2359,7 +2174,6 @@ namespace ShareX
 
         private void tsmiShowResponse_Click(object sender, EventArgs e)
         {
-            uim.ShowResponse();
         }
 
         private void tsmiClearList_Click(object sender, EventArgs e)

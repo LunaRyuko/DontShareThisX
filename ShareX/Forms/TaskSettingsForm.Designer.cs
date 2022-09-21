@@ -2214,28 +2214,24 @@
             resources.ApplyResources(this.cbClipboardUploadShareURL, "cbClipboardUploadShareURL");
             this.cbClipboardUploadShareURL.Name = "cbClipboardUploadShareURL";
             this.cbClipboardUploadShareURL.UseVisualStyleBackColor = true;
-            this.cbClipboardUploadShareURL.CheckedChanged += new System.EventHandler(this.cbClipboardUploadShareURL_CheckedChanged);
             // 
             // cbClipboardUploadURLContents
             // 
             resources.ApplyResources(this.cbClipboardUploadURLContents, "cbClipboardUploadURLContents");
             this.cbClipboardUploadURLContents.Name = "cbClipboardUploadURLContents";
             this.cbClipboardUploadURLContents.UseVisualStyleBackColor = true;
-            this.cbClipboardUploadURLContents.CheckedChanged += new System.EventHandler(this.cbClipboardUploadContents_CheckedChanged);
             // 
             // cbClipboardUploadAutoIndexFolder
             // 
             resources.ApplyResources(this.cbClipboardUploadAutoIndexFolder, "cbClipboardUploadAutoIndexFolder");
             this.cbClipboardUploadAutoIndexFolder.Name = "cbClipboardUploadAutoIndexFolder";
             this.cbClipboardUploadAutoIndexFolder.UseVisualStyleBackColor = true;
-            this.cbClipboardUploadAutoIndexFolder.CheckedChanged += new System.EventHandler(this.cbClipboardUploadAutoIndexFolder_CheckedChanged);
             // 
             // cbClipboardUploadShortenURL
             // 
             resources.ApplyResources(this.cbClipboardUploadShortenURL, "cbClipboardUploadShortenURL");
             this.cbClipboardUploadShortenURL.Name = "cbClipboardUploadShortenURL";
             this.cbClipboardUploadShortenURL.UseVisualStyleBackColor = true;
-            this.cbClipboardUploadShortenURL.CheckedChanged += new System.EventHandler(this.cbClipboardUploadAutoDetectURL_CheckedChanged);
             // 
             // tpUploaderFilters
             // 
@@ -2264,7 +2260,6 @@
             this.lvUploaderFiltersList.Name = "lvUploaderFiltersList";
             this.lvUploaderFiltersList.UseCompatibleStateImageBehavior = false;
             this.lvUploaderFiltersList.View = System.Windows.Forms.View.Details;
-            this.lvUploaderFiltersList.SelectedIndexChanged += new System.EventHandler(this.lvUploaderFiltersList_SelectedIndexChanged);
             // 
             // chUploaderFiltersName
             // 
@@ -2279,21 +2274,18 @@
             resources.ApplyResources(this.btnUploaderFiltersRemove, "btnUploaderFiltersRemove");
             this.btnUploaderFiltersRemove.Name = "btnUploaderFiltersRemove";
             this.btnUploaderFiltersRemove.UseVisualStyleBackColor = true;
-            this.btnUploaderFiltersRemove.Click += new System.EventHandler(this.btnUploaderFiltersRemove_Click);
             // 
             // btnUploaderFiltersUpdate
             // 
             resources.ApplyResources(this.btnUploaderFiltersUpdate, "btnUploaderFiltersUpdate");
             this.btnUploaderFiltersUpdate.Name = "btnUploaderFiltersUpdate";
             this.btnUploaderFiltersUpdate.UseVisualStyleBackColor = true;
-            this.btnUploaderFiltersUpdate.Click += new System.EventHandler(this.btnUploaderFiltersUpdate_Click);
             // 
             // btnUploaderFiltersAdd
             // 
             resources.ApplyResources(this.btnUploaderFiltersAdd, "btnUploaderFiltersAdd");
             this.btnUploaderFiltersAdd.Name = "btnUploaderFiltersAdd";
             this.btnUploaderFiltersAdd.UseVisualStyleBackColor = true;
-            this.btnUploaderFiltersAdd.Click += new System.EventHandler(this.btnUploaderFiltersAdd_Click);
             // 
             // lblUploaderFiltersDestination
             // 

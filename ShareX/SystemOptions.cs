@@ -39,8 +39,8 @@ namespace ShareX
 
         public static void UpdateSystemOptions()
         {
-            DisableUpdateCheck = GetSystemOptionBoolean("DisableUpdateCheck");
-            DisableUpload = GetSystemOptionBoolean("DisableUpload");
+            DisableUpdateCheck = true;
+            DisableUpload = true;
             PersonalPath = GetSystemOptionString("PersonalPath");
         }
 

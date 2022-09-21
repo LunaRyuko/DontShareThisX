@@ -29,7 +29,7 @@ using ShareX.ImageEffectsLib;
 using ShareX.IndexerLib;
 using ShareX.MediaLib;
 using ShareX.ScreenCaptureLib;
-using ShareX.UploadersLib;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -57,15 +57,6 @@ namespace ShareX
 
         public bool UseDefaultAfterUploadJob = true;
         public AfterUploadTasks AfterUploadJob = AfterUploadTasks.CopyURLToClipboard;
-
-        public bool UseDefaultDestinations = true;
-        public ImageDestination ImageDestination = ImageDestination.Imgur;
-        public FileDestination ImageFileDestination = FileDestination.Dropbox;
-        public TextDestination TextDestination = TextDestination.Pastebin;
-        public FileDestination TextFileDestination = FileDestination.Dropbox;
-        public FileDestination FileDestination = FileDestination.Dropbox;
-        public UrlShortenerType URLShortenerDestination = UrlShortenerType.BITLY;
-        public URLSharingServices URLSharingServiceDestination = URLSharingServices.Twitter;
 
         public bool OverrideFTP = false;
         public int FTPIndex = 0;
@@ -151,7 +142,7 @@ namespace ShareX
         {
             get
             {
-                return UseDefaultAfterCaptureJob && UseDefaultAfterUploadJob && UseDefaultDestinations && !OverrideFTP && !OverrideCustomUploader &&
+                return UseDefaultAfterCaptureJob && !OverrideFTP && !OverrideCustomUploader &&
                     !OverrideScreenshotsFolder && UseDefaultGeneralSettings && UseDefaultImageSettings && UseDefaultCaptureSettings && UseDefaultUploadSettings &&
                     UseDefaultActions && UseDefaultToolsSettings && UseDefaultAdvancedSettings && !WatchFolderEnabled;
             }
@@ -201,17 +192,6 @@ namespace ShareX
                     AfterUploadJob = defaultTaskSettings.AfterUploadJob;
                 }
 
-                if (UseDefaultDestinations)
-                {
-                    ImageDestination = defaultTaskSettings.ImageDestination;
-                    ImageFileDestination = defaultTaskSettings.ImageFileDestination;
-                    TextDestination = defaultTaskSettings.TextDestination;
-                    TextFileDestination = defaultTaskSettings.TextFileDestination;
-                    FileDestination = defaultTaskSettings.FileDestination;
-                    URLShortenerDestination = defaultTaskSettings.URLShortenerDestination;
-                    URLSharingServiceDestination = defaultTaskSettings.URLSharingServiceDestination;
-                }
-
                 if (UseDefaultGeneralSettings)
                 {
                     GeneralSettings = defaultTaskSettings.GeneralSettings;
@@ -225,11 +205,6 @@ namespace ShareX
                 if (UseDefaultCaptureSettings)
                 {
                     CaptureSettings = defaultTaskSettings.CaptureSettings;
-                }
-
-                if (UseDefaultUploadSettings)
-                {
-                    UploadSettings = defaultTaskSettings.UploadSettings;
                 }
 
                 if (UseDefaultActions)
@@ -246,20 +221,6 @@ namespace ShareX
                 {
                     AdvancedSettings = defaultTaskSettings.AdvancedSettings;
                 }
-            }
-        }
-
-        public FileDestination GetFileDestinationByDataType(EDataType dataType)
-        {
-            switch (dataType)
-            {
-                case EDataType.Image:
-                    return ImageFileDestination;
-                case EDataType.Text:
-                    return TextFileDestination;
-                default:
-                case EDataType.File:
-                    return FileDestination;
             }
         }
     }
@@ -393,21 +354,6 @@ namespace ShareX
         public string URLRegexReplaceReplacement = "https://$1";
 
         #endregion Upload / File naming
-
-        #region Upload / Clipboard upload
-
-        public bool ClipboardUploadURLContents = false;
-        public bool ClipboardUploadShortenURL = false;
-        public bool ClipboardUploadShareURL = false;
-        public bool ClipboardUploadAutoIndexFolder = false;
-
-        #endregion Upload / Clipboard upload
-
-        #region Upload / Uploader filters
-
-        public List<UploaderFilter> UploaderFilters = new List<UploaderFilter>();
-
-        #endregion Upload / Uploader filters
     }
 
     public class TaskSettingsTools

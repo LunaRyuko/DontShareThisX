@@ -25,7 +25,7 @@
 
 using ShareX.HelpersLib;
 using ShareX.HistoryLib;
-using ShareX.UploadersLib;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -61,8 +61,6 @@ namespace ShareX
             }
         }
 
-        public ProgressManager Progress { get; set; }
-
         private string filePath;
 
         public string FilePath
@@ -95,12 +93,6 @@ namespace ShareX
         {
             get
             {
-                if ((DataType == EDataType.Image && TaskSettings.ImageDestination == ImageDestination.FileUploader) ||
-                    (DataType == EDataType.Text && TaskSettings.TextDestination == TextDestination.FileUploader))
-                {
-                    return EDataType.File;
-                }
-
                 return DataType;
             }
         }
@@ -109,35 +101,6 @@ namespace ShareX
         {
             get
             {
-                if (IsUploadJob)
-                {
-                    switch (UploadDestination)
-                    {
-                        case EDataType.Image:
-                            return TaskSettings.ImageDestination.GetLocalizedDescription();
-                        case EDataType.Text:
-                            return TaskSettings.TextDestination.GetLocalizedDescription();
-                        case EDataType.File:
-                            switch (DataType)
-                            {
-                                case EDataType.Image:
-                                    return TaskSettings.ImageFileDestination.GetLocalizedDescription();
-                                case EDataType.Text:
-                                    return TaskSettings.TextFileDestination.GetLocalizedDescription();
-                                default:
-                                case EDataType.File:
-                                    return TaskSettings.FileDestination.GetLocalizedDescription();
-                            }
-                        case EDataType.URL:
-                            if (Job == TaskJob.ShareURL)
-                            {
-                                return TaskSettings.URLSharingServiceDestination.GetLocalizedDescription();
-                            }
-
-                            return TaskSettings.URLShortenerDestination.GetLocalizedDescription();
-                    }
-                }
-
                 return "";
             }
         }
@@ -149,8 +112,6 @@ namespace ShareX
 
         public Stopwatch UploadDuration { get; set; }
 
-        public UploadResult Result { get; set; }
-
         public TaskInfo(TaskSettings taskSettings)
         {
             if (taskSettings == null)
@@ -160,7 +121,6 @@ namespace ShareX
 
             TaskSettings = taskSettings;
             Metadata = new TaskMetadata();
-            Result = new UploadResult();
         }
 
         public Dictionary<string, string> GetTags()
@@ -190,7 +150,7 @@ namespace ShareX
 
         public override string ToString()
         {
-            string text = Result.ToString();
+            string text = "";
 
             if (string.IsNullOrEmpty(text) && !string.IsNullOrEmpty(FilePath))
             {
@@ -209,10 +169,10 @@ namespace ShareX
                 DateTime = TaskEndTime,
                 Type = DataType.ToString(),
                 Host = UploaderHost,
-                URL = Result.URL,
-                ThumbnailURL = Result.ThumbnailURL,
-                DeletionURL = Result.DeletionURL,
-                ShortenedURL = Result.ShortenedURL,
+                URL = String.Empty,
+                ThumbnailURL = String.Empty,
+                DeletionURL = String.Empty,
+                ShortenedURL = String.Empty,
                 Tags = GetTags()
             };
         }

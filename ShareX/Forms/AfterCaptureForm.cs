@@ -50,8 +50,6 @@ namespace ShareX
             lvAfterCaptureTasks.SmallImageList = imageList;
             lvAfterUploadTasks.SmallImageList = imageList;
 
-            ucBeforeUpload.InitCapture(TaskSettings);
-
             AddAfterCaptureItems(TaskSettings.AfterCaptureJob);
             AddAfterUploadItems(TaskSettings.AfterUploadJob);
         }
@@ -163,16 +161,6 @@ namespace ShareX
 
         private void AddAfterUploadItems(AfterUploadTasks afterUploadTasks)
         {
-            AfterUploadTasks[] ignore = new AfterUploadTasks[] { AfterUploadTasks.None };
-
-            foreach (AfterUploadTasks task in Helpers.GetEnums<AfterUploadTasks>())
-            {
-                if (ignore.Any(x => x == task)) continue;
-                ListViewItem lvi = new ListViewItem(task.GetLocalizedDescription());
-                CheckItem(lvi, afterUploadTasks.HasFlag(task));
-                lvi.Tag = task;
-                lvAfterUploadTasks.Items.Add(lvi);
-            }
         }
 
         private AfterUploadTasks GetAfterUploadTasks()

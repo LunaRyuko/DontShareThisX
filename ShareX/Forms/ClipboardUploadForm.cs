@@ -108,22 +108,7 @@ namespace ShareX
 
         private void ClipboardUpload()
         {
-            if (IsClipboardContentValid)
-            {
-                switch (ClipboardContent)
-                {
-                    case Bitmap bmp:
-                        KeepClipboardContent = true;
-                        UploadManager.ProcessImageUpload(bmp, taskSettings);
-                        break;
-                    case string text:
-                        UploadManager.ProcessTextUpload(text, taskSettings);
-                        break;
-                    case string[] files:
-                        UploadManager.ProcessFilesUpload(files, taskSettings);
-                        break;
-                }
-            }
+            
         }
 
         private void ClipboardContentViewer_Shown(object sender, EventArgs e)

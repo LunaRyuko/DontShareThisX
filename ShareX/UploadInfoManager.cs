@@ -24,7 +24,7 @@
 #endregion License Information (GPL v3)
 
 using ShareX.HelpersLib;
-using ShareX.UploadersLib;
+
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -95,22 +95,18 @@ namespace ShareX
 
         public void OpenURL()
         {
-            if (IsItemSelected && SelectedItem.IsURLExist) URLHelpers.OpenURL(SelectedItem.Info.Result.URL);
         }
 
         public void OpenShortenedURL()
         {
-            if (IsItemSelected && SelectedItem.IsShortenedURLExist) URLHelpers.OpenURL(SelectedItem.Info.Result.ShortenedURL);
         }
 
         public void OpenThumbnailURL()
         {
-            if (IsItemSelected && SelectedItem.IsThumbnailURLExist) URLHelpers.OpenURL(SelectedItem.Info.Result.ThumbnailURL);
         }
 
         public void OpenDeletionURL()
         {
-            if (IsItemSelected && SelectedItem.IsDeletionURLExist) URLHelpers.OpenURL(SelectedItem.Info.Result.DeletionURL);
         }
 
         public void OpenFile()
@@ -134,15 +130,7 @@ namespace ShareX
             {
                 SelectedItem.Update();
 
-                if (SelectedItem.IsShortenedURLExist)
-                {
-                    URLHelpers.OpenURL(SelectedItem.Info.Result.ShortenedURL);
-                }
-                else if (SelectedItem.IsURLExist)
-                {
-                    URLHelpers.OpenURL(SelectedItem.Info.Result.URL);
-                }
-                else if (SelectedItem.IsFilePathValid)
+                if (SelectedItem.IsFilePathValid)
                 {
                     FileHelpers.OpenFile(SelectedItem.Info.FilePath);
                 }
@@ -155,22 +143,18 @@ namespace ShareX
 
         public void CopyURL()
         {
-            if (IsItemSelected) CopyTexts(SelectedItems.Where(x => x.IsURLExist).Select(x => x.Info.Result.URL));
         }
 
         public void CopyShortenedURL()
         {
-            if (IsItemSelected) CopyTexts(SelectedItems.Where(x => x.IsShortenedURLExist).Select(x => x.Info.Result.ShortenedURL));
         }
 
         public void CopyThumbnailURL()
         {
-            if (IsItemSelected) CopyTexts(SelectedItems.Where(x => x.IsThumbnailURLExist).Select(x => x.Info.Result.ThumbnailURL));
         }
 
         public void CopyDeletionURL()
         {
-            if (IsItemSelected) CopyTexts(SelectedItems.Where(x => x.IsDeletionURLExist).Select(x => x.Info.Result.DeletionURL));
         }
 
         public void CopyFile()
@@ -284,15 +268,7 @@ namespace ShareX
         {
             if (IsItemSelected)
             {
-                if (SelectedItem.IsShortenedURLExist)
-                {
-                    CopyTexts(SelectedItems.Where(x => x.IsShortenedURLExist).Select(x => x.Info.Result.ShortenedURL));
-                }
-                else if (SelectedItem.IsURLExist)
-                {
-                    CopyTexts(SelectedItems.Where(x => x.IsURLExist).Select(x => x.Info.Result.URL));
-                }
-                else if (SelectedItem.IsFilePathValid)
+                if (SelectedItem.IsFilePathValid)
                 {
                     CopyTexts(SelectedItems.Where(x => x.IsFilePathValid).Select(x => x.Info.FilePath));
                 }
@@ -327,16 +303,6 @@ namespace ShareX
             }
         }
 
-        public void Upload()
-        {
-            if (IsItemSelected && SelectedItem.IsFileExist) UploadManager.UploadFile(SelectedItem.Info.FilePath);
-        }
-
-        public void Download()
-        {
-            if (IsItemSelected && SelectedItem.IsFileURL) UploadManager.DownloadFile(SelectedItem.Info.Result.URL);
-        }
-
         public void EditImage()
         {
             if (IsItemSelected && SelectedItem.IsImageFile) TaskHelpers.AnnotateImageFromFile(SelectedItem.Info.FilePath);
@@ -358,29 +324,8 @@ namespace ShareX
             }
         }
 
-        public void ShortenURL(UrlShortenerType urlShortener)
-        {
-            if (IsItemSelected && SelectedItem.IsURLExist) UploadManager.ShortenURL(SelectedItem.Info.Result.ToString(), urlShortener);
-        }
-
-        public void ShareURL(URLSharingServices urlSharingService)
-        {
-            if (IsItemSelected && SelectedItem.IsURLExist) UploadManager.ShareURL(SelectedItem.Info.Result.ToString(), urlSharingService);
-        }
-
-        public void SearchImageUsingGoogle()
-        {
-            if (IsItemSelected && SelectedItem.IsURLExist) TaskHelpers.SearchImageUsingGoogle(SelectedItem.Info.Result.URL);
-        }
-
-        public void SearchImageUsingBing()
-        {
-            if (IsItemSelected && SelectedItem.IsURLExist) TaskHelpers.SearchImageUsingBing(SelectedItem.Info.Result.URL);
-        }
-
         public void ShowQRCode()
         {
-            if (IsItemSelected && SelectedItem.IsURLExist) new QRCodeForm(SelectedItem.Info.Result.URL).Show();
         }
 
         public async Task OCRImage()
@@ -411,14 +356,6 @@ namespace ShareX
                 {
                     TaskHelpers.CombineImages(imageFiles, orientation);
                 }
-            }
-        }
-
-        public void ShowResponse()
-        {
-            if (IsItemSelected && SelectedItem.Info.Result != null)
-            {
-                ResponseForm.ShowInstance(SelectedItem.Info.Result);
             }
         }
 

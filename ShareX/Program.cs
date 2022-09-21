@@ -25,7 +25,7 @@
 
 using ShareX.HelpersLib;
 using ShareX.Properties;
-using ShareX.UploadersLib;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -44,7 +44,7 @@ namespace ShareX
 {
     internal static class Program
     {
-        public const string Name = "ShareX";
+        public const string Name = "DontShareThisX";
 
         public const ShareXBuild Build =
 #if RELEASE
@@ -121,7 +121,6 @@ namespace ShareX
 
         internal static ApplicationConfig Settings { get; set; }
         internal static TaskSettings DefaultTaskSettings { get; set; }
-        internal static UploadersConfig UploadersConfig { get; set; }
         internal static HotkeysConfig HotkeysConfig { get; set; }
 
         internal static MainForm MainForm { get; private set; }
@@ -353,7 +352,6 @@ namespace ShareX
 
             SettingManager.LoadInitialSettings();
 
-            Uploader.UpdateServicePointManager();
             UpdateManager = new GitHubUpdateManager("ShareX", "ShareX", Dev, Portable);
             LanguageHelper.ChangeLanguage(Settings.Language);
             CleanupManager.CleanupAsync();
